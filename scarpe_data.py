@@ -46,41 +46,17 @@ df = pd.DataFrame(result)
 print(company_name[0].text)
 print(df)
 
-peer_compoarision_result = []
-peer_row = driver.find_elements(by=By.XPATH, value="//div[@id='peers-table-placeholder']/div[3]/table/tbody/tr")
-for k in range(2, len(peer_row)+1):
-    name = driver.find_elements(by=By.XPATH, value="//div[@id='peers-table-placeholder']/div[3]/table/tbody/tr[%s]/td[2]/a" %k) if True else " "
-    cmp_rs = driver.find_elements(by=By.XPATH, value="//div[@id='peers-table-placeholder']/div[3]/table/tbody/tr[%s]/td[3]" %k) if True else " "
-    pe = driver.find_elements(by=By.XPATH, value="//div[@id='peers-table-placeholder']/div[3]/table/tbody/tr[%s]/td[4]" %k) if True else " "
-    mar_cap_rs_cr = driver.find_elements(by=By.XPATH, value="//div[@id='peers-table-placeholder']/div[3]/table/tbody/tr[%s]/td[5]" %k) if True else " "
-    div_yld = driver.find_elements(by=By.XPATH, value="//div[@id='peers-table-placeholder']/div[3]/table/tbody/tr[%s]/td[6]" %k) if True else " "
-    np_qtr_rs_cr = driver.find_elements(by=By.XPATH, value="//div[@id='peers-table-placeholder']/div[3]/table/tbody/tr[%s]/td[7]" %k) if True else " "
-    qtr_profit_var = driver.find_elements(by=By.XPATH, value="//div[@id='peers-table-placeholder']/div[3]/table/tbody/tr[%s]/td[8]" %k) if True else " "
-    sales_qtr_rs_cr = driver.find_elements(by=By.XPATH, value="//div[@id='peers-table-placeholder']/div[3]/table/tbody/tr[%s]/td[9]" %k) if True else " "
-    qtr_sales_var = driver.find_elements(by=By.XPATH, value="//div[@id='peers-table-placeholder']/div[3]/table/tbody/tr[%s]/td[10]" %k) if True else " "
-    roce_1  = driver.find_elements(by=By.XPATH, value="//div[@id='peers-table-placeholder']/div[3]/table/tbody/tr[%s]/td[11]" %k) if True else " "
+ 
 
-    
-    peer_comaparision = {'Name':name[0].text,
-                            'CMP Rs':cmp_rs[0].text,
-                            'P/E':pe[0].text,
-                            'Mar Cap Rs.Cr.':mar_cap_rs_cr[0].text,
-                            'Div Yld':div_yld[0].text,
-                            'NP Qtr Rs.Cr.':np_qtr_rs_cr[0].text,
-                            'Qtr Profit Var':qtr_profit_var[0].text,
-                            'Sales Qtr Rs.Cr.':sales_qtr_rs_cr[0].text,
-                            'Qtr Sales Var':qtr_sales_var[0].text,
-                            'ROCE':roce_1[0].text,
-                            }
-    peer_compoarision_result.append(peer_comaparision)
-
-df_peer = pd.DataFrame(peer_compoarision_result)
-print("Peer Comparision")
-print(df_peer) 
-
-def fetch_results(header, row_length, row_values):
+def fetch_results(header, row_length, row_values, first_element):
     data_dict = {}
     heading = driver.find_elements(by=By.XPATH, value=header) if True else    []
+    if first_element is not None:
+        find_elements = driver.find_elements(by=By.XPATH, value=first_element)
+        get_row_length = len(find_elements)
+        for i in range(get_row_length): find_elements[i].click()
+    else:
+        True
     for i in range(len(heading)):
         header_index = i+1
         p = []
@@ -92,48 +68,59 @@ def fetch_results(header, row_length, row_values):
         data_dict.update({heading[i].text: p})
     data1 = pd.DataFrame(data=data_dict)
     print(data1)
-
+    
+def fetch_peer_comparision():
+    header = "//div[@id='peers-table-placeholder']/div[3]/table/tbody/tr/th"
+    row_length = "//div[@id='peers-table-placeholder']/div[3]/table/tbody/tr"
+    row_values = "//div[@id='peers-table-placeholder']/div[3]/table/tbody/tr[%s]/td[%s]"
+    fetch_results(header, row_length, row_values, None)
 
 def fetch_quarterly_results():
     header = "//section[@id='quarters']/div[2]/table/thead/tr/th"
     row_length = "//section[@id='quarters']/div[2]/table/tbody/tr"
     row_values = "//section[@id='quarters']/div[2]/table/tbody/tr[%s]/td[%s]"
-    fetch_results(header, row_length, row_values)
+    first_element = "//section[@id='quarters']/div[2]/table/tbody/tr/td[1]"
+    fetch_results(header, row_length, row_values, first_element)
 
 def fetch_profit_and_loss():
     header = "//section[@id='profit-loss']/div[2]/table/thead/tr/th"
     row_length = "//section[@id='profit-loss']/div[2]/table/tbody/tr"
     row_values = "//section[@id='profit-loss']/div[2]/table/tbody/tr[%s]/td[%s]"
-    fetch_results(header, row_length, row_values)
+    first_element = "//section[@id='profit-loss']/div[2]/table/tbody/tr/td[1]"
+    fetch_results(header, row_length, row_values, first_element)
 
 def fetch_balance_sheet():
     header = "//section[@id='balance-sheet']/div[2]/table/thead/tr/th"
     row_length = "//section[@id='balance-sheet']/div[2]/table/tbody/tr"
     row_values = "//section[@id='balance-sheet']/div[2]/table/tbody/tr[%s]/td[%s]"
-    fetch_results(header, row_length, row_values)
+    first_element = "//section[@id='balance-sheet']/div[2]/table/tbody/tr/td[1]"
+    fetch_results(header, row_length, row_values, first_element)
 
 
 def fetch_cash_flows():
     header = "//section[@id='cash-flow']/div[2]/table/thead/tr/th"
     row_length = "//section[@id='cash-flow']/div[2]/table/tbody/tr"
     row_values = "//section[@id='cash-flow']/div[2]/table/tbody/tr[%s]/td[%s]"
-    fetch_results(header, row_length, row_values)
+    first_element = "//section[@id='cash-flow']/div[2]/table/tbody/tr/td[1]"
+    fetch_results(header, row_length, row_values, first_element)
 
 
 def fetch_ratios():
     header = "//section[@id='ratios']/div[2]/table/thead/tr/th"
     row_length = "//section[@id='ratios']/div[2]/table/tbody/tr"
     row_values = "//section[@id='ratios']/div[2]/table/tbody/tr[%s]/td[%s]"
-    fetch_results(header, row_length, row_values)
+    first_element = "//section[@id='ratios']/div[2]/table/tbody/tr/td[1]"
+    fetch_results(header, row_length, row_values, first_element)
 
 
 def fetch_share_holdings():
     header = "//section[@id='shareholding']/div[2]/table/thead/tr/th"
     row_length = "//section[@id='shareholding']/div[2]/table/tbody/tr"
     row_values = "//section[@id='shareholding']/div[2]/table/tbody/tr[%s]/td[%s]"
-    fetch_results(header, row_length, row_values)
+    first_element = "//section[@id='shareholding']/div[2]/table/tbody/tr/td[1]"
+    fetch_results(header, row_length, row_values, first_element)
 
-
+fetch_peer_comparision()
 fetch_quarterly_results()
 fetch_profit_and_loss()
 fetch_balance_sheet()
